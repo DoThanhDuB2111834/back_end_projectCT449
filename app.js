@@ -8,6 +8,7 @@ app.use(express.json());
 
 const publisherRoute = require("./app/routes/publisher.route");
 const bookRoute = require("./app/routes/book.route");
+const staffRoute = require("./app/routes/staff.route");
 
 app.get("/", (req, res) => {
   res.json({ message: "Hello, World!" });
@@ -15,6 +16,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/publisers", publisherRoute);
 app.use("/api/books", bookRoute);
+app.use("/api/staffs", staffRoute);
 
 app.use((req, res, next) => {
   return next(new ApiError(404, "resource not found"));
