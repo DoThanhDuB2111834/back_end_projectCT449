@@ -7,6 +7,7 @@ class StaffService {
 
   extractConactData(payload) {
     const staff = {
+      username: payload.username,
       name: payload.name,
       password: payload.password,
       role: payload.role,
@@ -58,6 +59,13 @@ class StaffService {
     );
 
     return result;
+  }
+
+  async findOne(username, password) {
+    return await this.Staff.findOne({
+      username: username,
+      password: password,
+    });
   }
 }
 

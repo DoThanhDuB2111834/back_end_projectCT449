@@ -5,7 +5,9 @@ const ApiError = require("../api-error");
 const router = express.Router();
 
 var checkInput = (req, res, next) => {
-  if (!req.body?.name) {
+  if (!req.body?.username) {
+    return next(new ApiError(400, "Tên đăng nhập không được rỗng"));
+  } else if (!req.body?.name) {
     return next(new ApiError(400, "Tên không được rỗng"));
   } else if (!req.body?.password) {
     return next(new ApiError(400, "mật khẩu không được rỗng"));
