@@ -1,15 +1,33 @@
 const { ObjectId, ReturnDocument } = require("mongodb");
+const bcrypt = require("bcrypt");
+
+async function hashPassword(password) {
+  try {
+    // Số lượng salt rounds (tăng độ bảo mật)
+    const saltRounds = 10;
+
+    // Hash mật khẩu
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    console.log("Hashed Password:", hashedPassword);
+    return hashedPassword;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
 
 class StaffService {
   constructor(client) {
     this.Staff = client.db().collection("staffs");
   }
 
-  extractConactData(payload) {
+  async extractConactData(payload) {
+    var hashedPassword = await hashPassword(payload.password);
     const staff = {
       username: payload.username,
       name: payload.name,
-      password: payload.password,
+      password: hashedPassword,
       role: payload.role,
       address: payload.address,
       phoneNumber: payload.phoneNumber,
@@ -22,7 +40,7 @@ class StaffService {
   }
 
   async create(payload) {
-    const staff = this.extractConactData(payload);
+    const staff = await this.extractConactData(payload);
     const result = await this.Staff.findOneAndUpdate(
       staff,
       { $set: {} },
@@ -51,7 +69,7 @@ class StaffService {
       _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
     };
 
-    const update = this.extractConactData(payload);
+    const update = await this.extractConactData(payload);
     const result = await this.Staff.findOneAndUpdate(
       filter,
       { $set: update },
@@ -61,10 +79,9 @@ class StaffService {
     return result;
   }
 
-  async findOne(username, password) {
+  async findOne(username) {
     return await this.Staff.findOne({
       username: username,
-      password: password,
     });
   }
 }
