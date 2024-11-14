@@ -72,6 +72,20 @@ class BookService {
     return result;
   }
 
+  async updateImagPath(id, imagePath) {
+    const filter = {
+      _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
+    };
+
+    const result = await this.Book.findOneAndUpdate(
+      filter,
+      { $set: { imagePath: imagePath } },
+      { returnDocument: "after" }
+    );
+
+    return result;
+  }
+
   async delete(id) {
     const result = await this.Book.findOneAndDelete({
       _id: ObjectId.isValid(id) ? new ObjectId(id) : null,

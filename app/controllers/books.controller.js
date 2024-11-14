@@ -3,6 +3,17 @@ const BookService = require("../services/book.service");
 const MongoDB = require("../utils/mongodb.util");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+
+function deleteFile(filePath) {
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      console.error(`Error deleting file at ${filePath}:`, err);
+    } else {
+      console.log(`Successfully deleted file at ${filePath}`);
+    }
+  });
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -16,10 +27,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 exports.create = async (req, res, next) => {
-  if (!req.file) {
-    return res.status(400).send("No file uploaded.");
-  }
-  console.log(req.body);
   var imagePath = `/uploads/${req.file.filename}`; // Lưu bookData vào cơ sở dữ liệu tại đây (ví dụ: MongoDB)
   try {
     const bookService = new BookService(MongoDB.client);
@@ -48,6 +55,7 @@ exports.findById = async (req, res, next) => {
   try {
     const bookService = new BookService(MongoDB.client);
     const document = await bookService.findById(req.params.id);
+    console.log(document);
     if (!document) {
       return next(new ApiError(404, "Không tồn tại sách"));
     }
@@ -70,8 +78,16 @@ exports.update = async (req, res, next) => {
     if (!document) {
       return next(new ApiError(404, "Không tồn tại sách"));
     }
+    if (req.file) {
+      let name = document.imagePath.replace("/uploads", "");
+      const filePathToDelete = path.join("uploads", name);
+      deleteFile(filePathToDelete);
+      var imagePath = `/uploads/${req.file.filename}`;
+      await bookService.updateImagPath(req.params.id, imagePath);
+    }
     return res.send(document);
   } catch (error) {
+    console.error(error);
     return next(
       new ApiError(500, "Có lỗi xảy ra trong quá trình cập nhật sách")
     );
@@ -84,6 +100,11 @@ exports.delete = async (req, res, next) => {
     const document = await bookService.delete(req.params.id);
     if (!document) {
       return next(new ApiError(404, "Không tồn tại sách"));
+    }
+    if (document.imagePath) {
+      let name = document.imagePath.replace("/uploads", "");
+      const filePathToDelete = path.join("uploads", name);
+      deleteFile(filePathToDelete);
     }
     return res.send({ messgae: "Xóa sách thành công" });
   } catch (error) {
