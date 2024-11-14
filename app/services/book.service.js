@@ -5,14 +5,15 @@ class BookService {
     this.Book = client.db().collection("books");
   }
 
-  extractConactData(payload) {
+  extractConactData(payload, imagePath) {
     const book = {
       name: payload.name,
       price: payload.price,
       quantity: payload.quantity,
       publicationYear: payload.publicationYear,
-      publisherId: payload.publisherId,
+      publisherId: new ObjectId(payload.publisherId),
       author: payload.author,
+      imagePath: imagePath,
     };
 
     Object.keys(book).forEach(
@@ -21,8 +22,8 @@ class BookService {
     return book;
   }
 
-  async create(payload) {
-    const book = this.extractConactData(payload);
+  async create(payload, imagePath) {
+    const book = this.extractConactData(payload, imagePath);
     const result = await this.Book.findOneAndUpdate(
       book,
       { $set: {} },
@@ -36,8 +37,18 @@ class BookService {
   }
 
   async findAll() {
-    const cursor = await this.Book.find({});
-    return await cursor.toArray();
+    const cursor = await this.Book.aggregate([
+      {
+        $lookup: {
+          from: "publishers", // Tên của collection cần tham chiếu
+          localField: "publisherId", // Trường trong collection hiện tại
+          foreignField: "_id", // Trường trong collection cần tham chiếu
+          as: "publisher", // Tên trường kết quả sau khi tham chiếu
+        },
+      },
+    ]).toArray();
+    // cursor.toArray.forEach((book) => console.log(book));
+    return cursor;
   }
 
   async findById(id) {

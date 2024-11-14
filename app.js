@@ -2,11 +2,15 @@ const express = require("express");
 const cors = require("cors");
 const ApiError = require("./app/api-error");
 const cookieParser = require("cookie-parser");
+const multer = require("multer");
+const path = require("path");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static("uploads"));
 
 const publisherRoute = require("./app/routes/publisher.route");
 const bookRoute = require("./app/routes/book.route");

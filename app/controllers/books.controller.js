@@ -1,13 +1,32 @@
 const ApiError = require("../api-error");
 const BookService = require("../services/book.service");
 const MongoDB = require("../utils/mongodb.util");
+const multer = require("multer");
+const path = require("path");
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Thư mục lưu trữ file
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Lưu file với thời gian hiện tại để tránh trùng tên
+  },
+});
+
+const upload = multer({ storage: storage });
 
 exports.create = async (req, res, next) => {
+  if (!req.file) {
+    return res.status(400).send("No file uploaded.");
+  }
+  console.log(req.body);
+  var imagePath = `/uploads/${req.file.filename}`; // Lưu bookData vào cơ sở dữ liệu tại đây (ví dụ: MongoDB)
   try {
     const bookService = new BookService(MongoDB.client);
-    const document = await bookService.create(req.body);
+    const document = await bookService.create(req.body, imagePath);
     return res.send(document);
   } catch (error) {
+    console.log(error);
     return next(new ApiError(500, "Lỗi xảy ra trong quá trình tạo sách"));
   }
 };
