@@ -12,6 +12,7 @@ class BookService {
       quantity: payload.quantity,
       publicationYear: payload.publicationYear,
       publisherId: new ObjectId(payload.publisherId),
+      categoryId: new ObjectId(payload.categoryId),
       author: payload.author,
       imagePath: imagePath,
     };
@@ -44,6 +45,14 @@ class BookService {
           localField: "publisherId", // Trường trong collection hiện tại
           foreignField: "_id", // Trường trong collection cần tham chiếu
           as: "publisher", // Tên trường kết quả sau khi tham chiếu
+        },
+      },
+      {
+        $lookup: {
+          from: "categories", // Tên của collection cần tham chiếu
+          localField: "categoryId", // Trường trong collection hiện tại
+          foreignField: "_id", // Trường trong collection cần tham chiếu
+          as: "category", // Tên trường kết quả sau khi tham chiếu
         },
       },
     ]).toArray();

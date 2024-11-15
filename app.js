@@ -16,6 +16,7 @@ const publisherRoute = require("./app/routes/publisher.route");
 const bookRoute = require("./app/routes/book.route");
 const staffRoute = require("./app/routes/staff.route");
 const authRouter = require("./app/routes/CustomeAuth.route");
+const categoryRoute = require("./app/routes/categories.route");
 
 app.get("/", (req, res) => {
   res.json({ message: "Hello, World!" });
@@ -25,6 +26,7 @@ app.use("/api/publisers", publisherRoute);
 app.use("/api/books", bookRoute);
 app.use("/api/staffs", staffRoute);
 app.use("/api", authRouter);
+app.use("/api/categories", categoryRoute);
 
 app.use((req, res, next) => {
   return next(new ApiError(404, "resource not found"));
