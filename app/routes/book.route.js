@@ -41,4 +41,6 @@ router
   .put(upload.single("image"), books.update)
   .delete(books.delete);
 
+router.route("/findKeyword/:keyword").get(books.findKeyword);
+
 module.exports = router;

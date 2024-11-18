@@ -18,6 +18,7 @@ const staffRoute = require("./app/routes/staff.route");
 const authRouter = require("./app/routes/CustomeAuth.route");
 const categoryRoute = require("./app/routes/categories.route");
 const readerRoute = require("./app/routes/reader.route");
+const manageBorrows = require("./app/routes/manageBorrowsBook.route");
 
 app.get("/", (req, res) => {
   res.json({ message: "Hello, World!" });
@@ -29,6 +30,7 @@ app.use("/api/staffs", staffRoute);
 app.use("/api", authRouter);
 app.use("/api/categories", categoryRoute);
 app.use("/api/readers", readerRoute);
+app.use("/api/manageBorrow", manageBorrows);
 
 app.use((req, res, next) => {
   return next(new ApiError(404, "resource not found"));

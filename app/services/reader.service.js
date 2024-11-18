@@ -46,6 +46,12 @@ class ReaderService {
     });
   }
 
+  async findByKeyword(keyword) {
+    const query = { surname: { $regex: `.*${keyword}.*`, $options: "i" } };
+    const cursor = await this.Reader.find(query);
+    return await cursor.toArray();
+  }
+
   async update(id, payload) {
     const filter = {
       _id: ObjectId.isValid(id) ? new ObjectId(id) : null,

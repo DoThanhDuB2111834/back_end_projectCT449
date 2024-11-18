@@ -66,6 +66,33 @@ class BookService {
     });
   }
 
+  async findByKeyword(keyword) {
+    console.log(keyword);
+    const query = { name: { $regex: `.*${keyword}.*`, $options: "i" } };
+    const cursor = await this.Book.aggregate([
+      {
+        $match: query, // Lọc theo điều kiện query
+      },
+      {
+        $lookup: {
+          from: "publishers", // Tên của collection cần tham chiếu
+          localField: "publisherId", // Trường trong collection hiện tại
+          foreignField: "_id", // Trường trong collection cần tham chiếu
+          as: "publisher", // Tên trường kết quả sau khi tham chiếu
+        },
+      },
+      {
+        $lookup: {
+          from: "categories", // Tên của collection cần tham chiếu
+          localField: "categoryId", // Trường trong collection hiện tại
+          foreignField: "_id", // Trường trong collection cần tham chiếu
+          as: "category", // Tên trường kết quả sau khi tham chiếu
+        },
+      },
+    ]);
+    return await cursor.toArray();
+  }
+
   async update(id, payload) {
     const filter = {
       _id: ObjectId.isValid(id) ? new ObjectId(id) : null,

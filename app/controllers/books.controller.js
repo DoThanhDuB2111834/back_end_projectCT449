@@ -67,6 +67,22 @@ exports.findById = async (req, res, next) => {
   }
 };
 
+exports.findKeyword = async (req, res, next) => {
+  try {
+    const Service = new BookService(MongoDB.client);
+    const document = await Service.findByKeyword(req.params.keyword);
+    if (!document) {
+      return next(new ApiError(404, "Không tồn tại người dùng có tên như vậy"));
+    }
+    console.log(document);
+    return res.send(document);
+  } catch (error) {
+    return next(
+      new ApiError(500, `Lỗi khi truy xuất người dùng với id ${req.params.id}`)
+    );
+  }
+};
+
 exports.update = async (req, res, next) => {
   if (Object.keys(req.body).length === 0) {
     return next(new Error(400, "Dữ liệu cập nhật không được rỗng"));
