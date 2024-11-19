@@ -1,4 +1,6 @@
 const { ObjectId, ReturnDocument } = require("mongodb");
+const ReaderService = require("./reader.service");
+const bookService = require("./book.service");
 
 class ManageBorrowService {
   constructor(client) {
@@ -30,6 +32,10 @@ class ManageBorrowService {
     const result = await this.ManageBorrow.insertOne(document);
 
     return result;
+  }
+
+  async clientBorrow(payload) {
+    readerDocument = await ReaderService.create(payload);
   }
 
   async findAll() {

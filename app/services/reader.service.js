@@ -13,6 +13,7 @@ class ReaderService {
       gender: payload.gender,
       address: payload.address,
       phoneNumber: payload.phoneNumber,
+      email: payload.email,
     };
 
     Object.keys(reader).forEach(
@@ -23,6 +24,12 @@ class ReaderService {
 
   async create(payload) {
     const reader = this.extractConactData(payload);
+    if (await this.Reader.findOne({ email: reader.email })) {
+      return { message: "Email này đã tồn tại" };
+    }
+    if (await this.Reader.findOne({ phoneNumber: reader.phoneNumber })) {
+      return { message: "Số điện thoại này đã tồn tại" };
+    }
     const result = await this.Reader.findOneAndUpdate(
       reader,
       { $set: {} },
