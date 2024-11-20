@@ -2,6 +2,9 @@ const { ObjectId, ReturnDocument } = require("mongodb");
 const ReaderService = require("./reader.service");
 const bookService = require("./book.service");
 
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+
 class ManageBorrowService {
   constructor(client) {
     this.ManageBorrow = client.db().collection("manage_borrows_book");
@@ -9,8 +12,8 @@ class ManageBorrowService {
 
   extractConactData(payload, userId) {
     const publiser = {
-      readerId: new ObjectId(payload.readerId),
-      bookId: new ObjectId(payload.bookId),
+      readerId: payload.readerId ? new ObjectId(payload.readerId) : undefined,
+      bookId: payload.bookId ? new ObjectId(payload.bookId) : undefined,
       dateBorrow: payload.dateBorrow,
       dateReturn: payload.dateReturn,
       state: payload.state ?? "Đang mượn",
@@ -25,6 +28,7 @@ class ManageBorrowService {
 
   async create(payload, userId) {
     const document = this.extractConactData(payload, userId);
+
     await this.ManageBorrow.createIndex(
       { readerId: 1, bookId: 1, dateBorrow: 1 },
       { unique: true }
@@ -103,12 +107,12 @@ class ManageBorrowService {
     return result.length ? result[0] : null;
   }
 
-  async update(id, payload) {
+  async update(id, payload, staffId) {
     const filter = {
       _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
     };
 
-    const update = this.extractConactData(payload);
+    const update = this.extractConactData(payload, staffId);
     const result = await this.ManageBorrow.findOneAndUpdate(
       filter,
       { $set: update },

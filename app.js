@@ -3,14 +3,25 @@ const cors = require("cors");
 const ApiError = require("./app/api-error");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
+const bodyParser = require("body-parser");
 const path = require("path");
+const session = require("express-session");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
+// app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
+app.use(
+  session({
+    secret: "mk",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Đặt thành true nếu dùng HTTPS
+  })
+);
 
 const publisherRoute = require("./app/routes/publisher.route");
 const bookRoute = require("./app/routes/book.route");

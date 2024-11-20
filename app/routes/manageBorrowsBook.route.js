@@ -14,4 +14,12 @@ router
 
 router.route("/findKeyword/:keyword").get(manageBorrows.findKeyword);
 
+router.route("/clientBorrowRequest").post(manageBorrows.clientBorrowRequest);
+
+router.route("/verify/:code").get(manageBorrows.verify);
+
+router
+  .route("/clientBorrowRequestWithAccount")
+  .post(manageBorrows.clientBorrowRequestWithAccount);
+
 module.exports = router;

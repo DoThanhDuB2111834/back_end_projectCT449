@@ -11,8 +11,12 @@ class BookService {
       price: payload.price,
       quantity: payload.quantity,
       publicationYear: payload.publicationYear,
-      publisherId: new ObjectId(payload.publisherId),
-      categoryId: new ObjectId(payload.categoryId),
+      publisherId: payload.publisherId
+        ? new ObjectId(payload.publisherId)
+        : undefined,
+      categoryId: payload.categoryId
+        ? new ObjectId(payload.categoryId)
+        : undefined,
       author: payload.author,
       imagePath: imagePath,
     };

@@ -53,6 +53,12 @@ class ReaderService {
     });
   }
 
+  async findByEmail(email) {
+    return await this.Reader.findOne({
+      email: email,
+    });
+  }
+
   async findByKeyword(keyword) {
     const query = { surname: { $regex: `.*${keyword}.*`, $options: "i" } };
     const cursor = await this.Reader.find(query);
