@@ -29,10 +29,10 @@ class ManageBorrowService {
   async create(payload, userId) {
     const document = this.extractConactData(payload, userId);
 
-    await this.ManageBorrow.createIndex(
-      { readerId: 1, bookId: 1, dateBorrow: 1 },
-      { unique: true }
-    );
+    // await this.ManageBorrow.createIndex(
+    //   { readerId: 1, bookId: 1, dateBorrow: 1 },
+    //   { unique: true }
+    // );
     const result = await this.ManageBorrow.insertOne(document);
 
     return result;

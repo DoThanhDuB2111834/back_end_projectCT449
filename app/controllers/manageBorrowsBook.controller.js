@@ -33,8 +33,16 @@ exports.create = async (req, res, next) => {
     var userId = jwt.verify(token, "mk")._id;
     const Service = new ManageBorrowService(MongoDB.client);
     const document = await Service.create(req.body, userId);
+    const bookService = new BookService(MongoDB.client);
+    console.log(document);
+    const bookDocument = await bookService.findById(req.body.bookId);
+    console.log(bookDocument);
+    await bookService.update(bookDocument._id, {
+      quantity: bookDocument.quantity - 1,
+    });
     return res.send(document);
   } catch (error) {
+    console.log(error);
     return next(new ApiError(500, "Lỗi xảy ra trong quá trình tạo đơn mượn"));
   }
 };
@@ -120,6 +128,14 @@ exports.verify = async (req, res, next) => {
         manage_borrows_book
       );
 
+      const bookService = new BookService(MongoDB.client);
+      const bookDocument = await bookService.findById(
+        manage_borrows_book_document.bookId
+      );
+      await bookService.update(bookDocument._id, {
+        quantity: bookDocument.quantity - 1,
+      });
+
       let mailOptions = {
         from: "dub2111834@student.ctu.edu.vn",
         to: req.session.email,
@@ -165,6 +181,12 @@ exports.clientBorrowRequestWithAccount = async (req, res, next) => {
       state: "Chờ xác nhận",
     };
     const document = await Service.create(borrow);
+
+    const bookService = new BookService(MongoDB.client);
+    const bookDocument = await bookService.findById(document.bookId);
+    await bookService.update(bookDocument._id, {
+      quantity: bookDocument.quantity - 1,
+    });
     let mailOptions = {
       from: "dub2111834@student.ctu.edu.vn",
       to: readerDocument.email,
@@ -311,10 +333,16 @@ exports.delete = async (req, res, next) => {
   try {
     const Service = new ManageBorrowService(MongoDB.client);
     const document = await Service.delete(req.params.id);
+    console.log(document);
     if (!document) {
       return next(new ApiError(404, "Không tồn tại người dùng"));
     }
-    return res.send({ messgae: "Xóa người dùng thành công" });
+    const bookService = new BookService(MongoDB.client);
+    const bookDocument = await bookService.findById(document.bookId);
+    await bookService.update(bookDocument._id, {
+      quantity: bookDocument.quantity + 1,
+    });
+    return res.send({ messgae: "Xóa đơn mượn sách thành công" });
   } catch (error) {
     return next(
       new ApiError(500, `Không thể xóa người dùng với id ${req.params.id} `)
