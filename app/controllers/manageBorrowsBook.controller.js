@@ -114,7 +114,7 @@ exports.verify = async (req, res, next) => {
         phoneNumber: req.session.phoneNumber,
       };
       var readerDocument = await readerService.create(reader);
-      console.log(readerDocument);
+      console.log(readerDocument._id);
       const manage_borrows_book = {
         readerId: readerDocument._id,
         bookId: req.session.bookId,
@@ -128,13 +128,12 @@ exports.verify = async (req, res, next) => {
         manage_borrows_book
       );
 
-      const bookService = new BookService(MongoDB.client);
-      const bookDocument = await bookService.findById(
-        manage_borrows_book_document.bookId
-      );
-      await bookService.update(bookDocument._id, {
-        quantity: bookDocument.quantity - 1,
-      });
+      // const bookService = new BookService(MongoDB.client);
+      // const bookDocument = await bookService.findById(req.session.bookId);
+      // console.log(bookDocument);
+      // await bookService.update(bookDocument._id, {
+      //   quantity: bookDocument.quantity - 1,
+      // });
 
       let mailOptions = {
         from: "dub2111834@student.ctu.edu.vn",
@@ -145,6 +144,7 @@ exports.verify = async (req, res, next) => {
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
+          console.log(error, info);
           return next(new ApiError(error));
         }
         return res.send({

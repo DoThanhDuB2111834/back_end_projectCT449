@@ -1,15 +1,19 @@
 const express = require("express");
 const manageBorrows = require("../controllers/manageBorrowsBook.controller");
+const AuthMiddleware = require("./middleware/Auth.middleware");
 const { route } = require("./publisher.route");
 
 const router = express.Router();
 
-router.route("/").get(manageBorrows.findAll).post(manageBorrows.create);
+router
+  .route("/")
+  .get(AuthMiddleware.checkRoleStaff, manageBorrows.findAll)
+  .post(manageBorrows.create);
 
 router
   .route("/:id")
   .get(manageBorrows.findById)
-  .put(manageBorrows.update)
+  .put(AuthMiddleware.checkRoleStaff, manageBorrows.update)
   .delete(manageBorrows.delete);
 
 router.route("/findKeyword/:keyword").get(manageBorrows.findKeyword);

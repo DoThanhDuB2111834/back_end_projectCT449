@@ -3,6 +3,7 @@ const books = require("../controllers/books.controller");
 const ApiError = require("../api-error");
 const multer = require("multer");
 const path = require("path");
+const AuthMiddleware = require("./middleware/Auth.middleware");
 
 const router = express.Router();
 
@@ -33,12 +34,15 @@ const upload = multer({ storage: storage });
 //   return next();
 // });
 
-router.route("/").get(books.findAll).post(upload.single("image"), books.create);
+router
+  .route("/")
+  .get(books.findAll)
+  .post(upload.single("image"), AuthMiddleware.checkRoleManager, books.create);
 
 router
   .route("/:id")
   .get(books.findById)
-  .put(upload.single("image"), books.update)
+  .put(upload.single("image"), AuthMiddleware.checkRoleManager, books.update)
   .delete(books.delete);
 
 router.route("/findKeyword/:keyword").get(books.findKeyword);
