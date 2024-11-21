@@ -21,7 +21,7 @@ async function startServer() {
     setInterval(checkEveryHour, 3600000);
 
     // Gọi hàm `checkEveryHour` ngay lập tức khi khởi động
-    // checkEveryHour();
+    checkEveryHour();
   } catch (error) {
     console.log("Cannot connect to the database!", error);
     process.exit(1);

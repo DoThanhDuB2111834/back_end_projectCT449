@@ -17,7 +17,7 @@ function isTokenBlacklisted(token) {
 
 let transporter = nodemailer.createTransport({
   service: "gmail",
-  auth: { user: "dub2111834@student.ctu.edu.vn", pass: "glbtmybughcrfvhj" },
+  auth: { user: "dub2111834@student.ctu.edu.vn", pass: "" },
 }); // Tạo mã xác nhận ngẫu nhiên
 
 function generateVerificationCode() {
@@ -225,6 +225,26 @@ exports.checkLateDeadline = async (req, res, next) => {
         borrowBook.state == "Đang mượn"
       ) {
         await Service.update(borrowBook._id, { state: "Trễ hạn" });
+        const readerService = new ReaderService(MongoDB.client);
+        console.log(borrowBook);
+        const user = await readerService.findById(borrowBook.readerId);
+        console.log(user);
+        let mailOptions = {
+          from: "dub2111834@student.ctu.edu.vn",
+          to: user.email,
+          subject: "Nhắc nhở trả sách",
+          text: `Đơn mượn mã số ${borrowBook._id} đã quá hạn, bạn vui lòng đem sách đến thư viện để trả`,
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            return next(new ApiError(error));
+          }
+          return res.send({
+            message: "Đã xác nhận",
+            manageBorrow: document,
+          });
+        });
       }
     });
   } catch (error) {
